@@ -14,7 +14,7 @@ module Cryptoexchange::Exchanges
         end
 
         def ticker_url(market_pair)
-          "#{Cryptoexchange::Exchanges::Whitebit::Market::API_URL}/depth/result?market=#{market_pair.base}_#{market_pair.target}&limit=100"
+          "#{Cryptoexchange::Exchanges::Whitebit::Market::API_URL}/v4/public/orderbook/#{market_pair.base}_#{market_pair.target}?limit=100&level=2"
         end
 
         def adapt(output, market_pair)
@@ -25,15 +25,15 @@ module Cryptoexchange::Exchanges
           order_book.market    = Whitebit::Market::NAME
           order_book.asks      = adapt_orders(output['asks'])
           order_book.bids      = adapt_orders(output['bids'])
-          order_book.timestamp = nil
           order_book.payload   = output
           order_book
         end
 
         def adapt_orders(orders)
           orders.collect do |order_entry|
-            Cryptoexchange::Models::Order.new(price: order_entry[0],
-                                              amount: order_entry[1])
+            Cryptoexchange::Models::Order.new(price: NumericHelper.to_d(order_entry[0]),
+                                              amount: NumericHelper.to_d(order_entry[1]),
+                                              timestamp: nil)
           end
         end
       end

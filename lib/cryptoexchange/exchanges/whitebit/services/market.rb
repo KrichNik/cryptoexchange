@@ -14,18 +14,20 @@ module Cryptoexchange::Exchanges
         end
 
         def ticker_url
-          "#{Cryptoexchange::Exchanges::Whitebit::Market::API_URL}/tickers"
+          "#{Cryptoexchange::Exchanges::Whitebit::Market::API_URL}/v1/public/tickers"
         end
 
         def adapt_all(output)
-          output['result'].map do |pair|
-            base, target = pair[0].split('_')
+          output['result'].map do |pair_name, pair_data|
+            base, target = pair_name.split('_')
+
             market_pair = Cryptoexchange::Models::MarketPair.new(
-                            base: base.upcase,
-                            target: target.upcase,
-                            market: Whitebit::Market::NAME
-                          )
-            adapt(market_pair, pair[1])
+              base: base.upcase,
+              target: target.upcase,
+              market: Whitebit::Market::NAME
+            )
+
+            adapt(market_pair, pair_data)
           end
         end
 
